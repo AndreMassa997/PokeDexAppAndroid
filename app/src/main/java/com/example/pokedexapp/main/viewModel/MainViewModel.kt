@@ -9,6 +9,9 @@ import com.google.gson.FieldNamingPolicy
 import com.google.gson.FieldNamingStrategy
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 
@@ -17,14 +20,21 @@ class MainViewModel: ViewModel() {
     var pokemons: MutableList<PokemonModel> = mutableListOf<PokemonModel>()
     private var nextOffset: Int = 0
 
-    suspend fun getPokemons(offset: Int, onResult: () -> Unit){
+    suspend fun getPokemons(offset: Int, onResult: (List<PokemonCellViewModel>) -> Unit){
         val queryParams = LinkedHashMap<String, String>()
         queryParams.put("offset", "$offset")
-        PokeAPI.instance.get("pokemon", queryParams, true, { data ->
+        PokeAPI.instance.get("pokemon", queryParams, true) { data ->
             data?.let {
-                parsePokemonsResponse(data)
+                val mainModel = parsePokemonsResponse(data)
+                mainModel.results.forEach { result ->
+                    CoroutineScope(Dispatchers.Default).launch {
+                        getPokemon(result.name){ data ->
+                            pokemons.put(parsePokemonResponse(data))
+                        }
+                    }
+                }
             }
-        })
+        }
     }
 
     private fun parsePokemonsResponse(data: StringBuffer): MainModel{

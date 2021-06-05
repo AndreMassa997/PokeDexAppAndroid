@@ -1,5 +1,7 @@
 package com.example.pokedexapp.common.model
 
+import android.content.res.ColorStateList
+import android.graphics.Color
 import com.google.gson.annotations.SerializedName
 
 data class PokemonModel(
@@ -98,4 +100,8 @@ enum class PokemonType{
     fairy,
     unknown,
     shadow,
+
+    fun color(): Int {
+       return Color.BLACK
+    }
 }
