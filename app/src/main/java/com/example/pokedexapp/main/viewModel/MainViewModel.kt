@@ -1,35 +1,32 @@
 package com.example.pokedexapp.main.viewModel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.pokedexapp.common.api.PokeAPI
 import com.example.pokedexapp.common.model.PokemonModel
-import com.example.pokedexapp.common.model.PokemonType
 import com.example.pokedexapp.main.model.MainModel
-import com.google.gson.FieldNamingPolicy
 import com.google.gson.FieldNamingStrategy
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.json.JSONArray
-import org.json.JSONObject
 
 class MainViewModel: ViewModel() {
 
-    var pokemons: MutableList<PokemonModel> = mutableListOf<PokemonModel>()
+    var pokemons: MutableList<PokemonModel> = mutableListOf()
     private var nextOffset: Int = 0
 
     suspend fun getPokemons(offset: Int, onResult: (List<PokemonCellViewModel>) -> Unit){
         val queryParams = LinkedHashMap<String, String>()
         queryParams.put("offset", "$offset")
         PokeAPI.instance.get("pokemon", queryParams, true) { data ->
-            data?.let {
+            data?.let { data ->
                 val mainModel = parsePokemonsResponse(data)
                 mainModel.results.forEach { result ->
                     CoroutineScope(Dispatchers.Default).launch {
                         getPokemon(result.name){ data ->
-                            pokemons.put(parsePokemonResponse(data))
+                            val pokemonCellViewModels = data.map { PokemonCellViewModel(it.name, it.types.firstOrNull()?.type?.name, it.sprites.other?.officialArtwork?.frontDefault ?: it.sprites.frontDefault, it.id) }
+                            onResult(pokemonCellViewModels)
                         }
                     }
                 }
@@ -46,12 +43,17 @@ class MainViewModel: ViewModel() {
         return mainModel
     }
 
-    suspend fun getPokemon(pokemonNameOrId: String, onResult: () -> Unit) {
-        PokeAPI.instance.get("pokemon/$pokemonNameOrId", null, true, { data ->
-            data?.let {
-                pokemons.add(parsePokemonResponse(it))
+    suspend fun getPokemon(pokemonNameOrId: String, onResult: (MutableList<PokemonModel>) -> Unit) {
+        PokeAPI.instance.get("pokemon/$pokemonNameOrId", null, true) { data ->
+            data?.let { it ->
+                try {
+                    pokemons.add(parsePokemonResponse(it))
+                }catch (e: Exception){
+                    Log.d("MAINVIEWMODEL", e.localizedMessage)
+                }
+                onResult(pokemons)
             }
-        })
+        }
     }
 
     private fun parsePokemonResponse(data: StringBuffer): PokemonModel{

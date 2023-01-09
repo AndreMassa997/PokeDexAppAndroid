@@ -2,6 +2,7 @@ package com.example.pokedexapp.main.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.pokedexapp.R
 import com.example.pokedexapp.main.viewModel.MainViewModel
@@ -20,11 +21,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         recyclerView = findViewById(R.id.recycler_view)
+        recyclerView.layoutManager = LinearLayoutManager(this)
 
         CoroutineScope(Dispatchers.Default).launch {
-            mainViewModel.getPokemons(0, {
-
-            })
+            mainViewModel.getPokemons(0) { it ->
+                val adapter = PokemonCellAdapter(it)
+                runOnUiThread( Runnable {
+                    recyclerView.adapter = adapter
+                    })
+            }
         }
 
     }
