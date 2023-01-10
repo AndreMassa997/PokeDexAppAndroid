@@ -1,8 +1,6 @@
 package com.example.pokedexapp.main.view
 
 import android.content.Context
-import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.pokedexapp.R
 import com.example.pokedexapp.common.api.PokeAPI
 import com.example.pokedexapp.main.viewModel.PokemonCellViewModel
-import java.net.URL
+import org.w3c.dom.Text
 
 class PokemonCellAdapter(private val dataSet: List<PokemonCellViewModel>) : RecyclerView.Adapter<PokemonCellAdapter.ViewHolder>() {
 
@@ -21,13 +19,15 @@ class PokemonCellAdapter(private val dataSet: List<PokemonCellViewModel>) : Recy
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val imageView: ImageView
-        val textView: TextView
+        val title: TextView
         val cardView: CardView
+        val subtitle: TextView
 
         init {
-            textView = view.findViewById(R.id.pokemon_cell_tv)
+            title = view.findViewById(R.id.pokemon_cell_title)
             imageView = view.findViewById(R.id.pokemon_cell_image)
             cardView = view.findViewById(R.id.pokemon_cell_card)
+            subtitle = view.findViewById(R.id.pokemon_cell_subtitle)
         }
     }
 
@@ -43,7 +43,8 @@ class PokemonCellAdapter(private val dataSet: List<PokemonCellViewModel>) : Recy
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         dataSet.elementAt(position).let { element ->
-            holder.textView.text = element.name
+            holder.title.text = element.name
+            holder.subtitle.text = element.pokemonId
 
             PokeAPI.instance.getImageFromURL(element.imageUrl) { image ->
                 image?.let { image ->

@@ -26,6 +26,7 @@ class MainViewModel: ViewModel() {
                     CoroutineScope(Dispatchers.Default).launch {
                         getPokemon(result.name){ data ->
                             val pokemonCellViewModels = data.map { PokemonCellViewModel(it.name, it.types.firstOrNull()?.type?.name, it.sprites.other?.officialArtwork?.frontDefault ?: it.sprites.frontDefault, it.id) }
+                            pokemonCellViewModels.sortedBy { it.id }
                             onResult(pokemonCellViewModels)
                         }
                     }
