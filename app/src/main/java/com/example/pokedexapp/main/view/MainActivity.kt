@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         recyclerView.layoutManager = layoutManager
 
         CoroutineScope(Dispatchers.Default).launch {
-            mainViewModel.getPokemons(0) {
+            mainViewModel.getPokemons() {
                 val adapter = PokemonCellAdapter(it)
                 runOnUiThread {
                     recyclerView.adapter = adapter
