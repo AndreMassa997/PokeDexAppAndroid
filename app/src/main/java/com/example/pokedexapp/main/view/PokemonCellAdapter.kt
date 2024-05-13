@@ -11,7 +11,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.pokedexapp.R
 import com.example.pokedexapp.common.api.PokeAPI
 import com.example.pokedexapp.main.viewModel.PokemonCellViewModel
-import org.w3c.dom.Text
 
 class PokemonCellAdapter(private val dataSet: List<PokemonCellViewModel>) : RecyclerView.Adapter<PokemonCellAdapter.ViewHolder>() {
 
@@ -47,8 +46,8 @@ class PokemonCellAdapter(private val dataSet: List<PokemonCellViewModel>) : Recy
             holder.subtitle.text = element.pokemonId
 
             PokeAPI.instance.getImageFromURL(element.imageUrl) { image ->
-                image?.let { image ->
-                    holder.imageView.setImageBitmap(image)
+                image?.let {
+                    holder.imageView.setImageBitmap(it)
                 }
             }
 
